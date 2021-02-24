@@ -1,4 +1,5 @@
-import numpy as np 
+import numpy as np
+from datetime import datetime
 
 class all_eps_bandit:
     def __init__(self, epsilon, means, noise_var, delta):
@@ -48,6 +49,8 @@ class all_eps_bandit:
         width = self.bound(self.pulls[arm], union=union)
         self.ubs[arm] = min(self.ubs[arm], self.emps[arm] + width)
         self.lbs[arm] = max(self.lbs[arm], self.emps[arm] - width)
+        if max([self.ubs[i] + self.lbs[i] - 2*self.emps[i] for i in range(self.narms)]) > 0.01:
+            a=5
 
     # def bound(self, pulls):
     #     '''Compute finite LIL bound with #pulls samples'''
@@ -108,6 +111,7 @@ def display_bounds(instance):
     if hasattr(instance, 'linear'):
         thresh = max(instance.means) * (1 - instance.epsilon) - instance.eta
     plt.figure(2)
+    plt.ylim(0, 1.5)
     plt.plot(instance.emps, 'b', label='empirical', marker="o")
     plt.plot(instance.means, 'k', label='true', marker="o")
     plt.plot(instance.lbs, 'g', marker=11)
@@ -118,4 +122,6 @@ def display_bounds(instance):
     plt.ylabel('Mean')
     plt.title('Final upper and lower bounds')
     # plt.savefig('too_early.pdf')
+    plt.savefig("images\\" + datetime.now().strftime("%Y%m%d-%H%M%S") + '_ubs_lbs_' + str(instance.total_pulls) + '.png')
+    plt.savefig("images\\" + datetime.now().strftime("%Y%m%d-%H%M%S") + '_ubs_lbs_' + str(instance.total_pulls) + '.svg')
     plt.show()
