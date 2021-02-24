@@ -141,7 +141,7 @@ if __name__ == '__main__':
     means = np.ones(100)
     # means[1:-1] = 0.965
     means[-1:] = 0
-    means[-1:] = 0.18
+    # means[-1:] = 0.18
     epsilon = 0.8
     delta = 0.01
     noise_var = 1

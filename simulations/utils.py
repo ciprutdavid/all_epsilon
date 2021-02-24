@@ -47,10 +47,16 @@ class all_eps_bandit:
 
     def update_bounds(self, arm, union=True):
         width = self.bound(self.pulls[arm], union=union)
+
+        if max(self.lbs[arm], self.emps[arm] - width) + min(self.ubs[arm], self.emps[arm] + width) - 2*self.emps[arm] > 1e-15:
+            a=5
+
         self.ubs[arm] = min(self.ubs[arm], self.emps[arm] + width)
         self.lbs[arm] = max(self.lbs[arm], self.emps[arm] - width)
-        if max([self.ubs[i] + self.lbs[i] - 2*self.emps[i] for i in range(self.narms)]) > 0.01:
-            a=5
+
+        # self.ubs[arm] = self.emps[arm] + width
+        # self.lbs[arm] = self.emps[arm] - width
+
 
     # def bound(self, pulls):
     #     '''Compute finite LIL bound with #pulls samples'''

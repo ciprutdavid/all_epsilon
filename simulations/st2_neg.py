@@ -121,8 +121,8 @@ class st2(all_eps_bandit):
         # update epsilon
         if len(self.semi_known_arms) == self.narms and not self.did_update_thresh and (self.ubs[self.argmax_ucb] - self.emps[self.argmax_ucb] < self.gamma2):
             display_bounds(self)
-            # self.epsilon = max(self.epsilon - self.gamma2, self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]]))
             old_eps = self.epsilon
+            # self.epsilon = max(self.epsilon - self.gamma2, self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]]))
             self.epsilon = self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]])
             print(f"updating epsilon from {old_eps} to {self.epsilon}")
             self.did_update_thresh = True
