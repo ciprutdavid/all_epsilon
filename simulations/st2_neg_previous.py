@@ -4,7 +4,7 @@ import numpy as np
 from utils import *
 
 class st2(all_eps_bandit):
-    def __init__(self, epsilon, means, noise_var, delta, gamma=0,
+    def __init__(self, epsilon, means, noise_var, delta, gamma=0, gamma2=1e-1,
                                                             burn_amt=1,
                                                             maxpulls=1e5,
                                                             printeach=5000,
@@ -16,6 +16,7 @@ class st2(all_eps_bandit):
         self.emp_bad = []
         self.return_set = []
         self.unknown_arms = list(range(self.narms))
+        self.semi_known_arms = []
         self.f_scores, self.emp_correct = [], []
         self.precision_vals, self.recall_vals = [], []
         # divide by two so gamma = bound width not half width
@@ -26,6 +27,8 @@ class st2(all_eps_bandit):
         self.printeach = printeach
         self.recordeach = 10000
         self.verbose = verbose
+        self.gamma2 = gamma2
+        self.did_update_thresh = False
 
     def arms_to_pull(self):
         ''' Computes shich are the three arms to pull per round.
@@ -48,6 +51,9 @@ class st2(all_eps_bandit):
         '''Is arm i certified good or bad wrt thresh_ub or thresh_lb'''
         return self.lbs[i] > self.thresh_ub or self.ubs[i] < self.thresh_lb
 
+    def is_semi_known(self, i):
+        return self.lbs[i] > self.thresh_ub or self.ubs[i] < self.thresh_lb or ((self.ubs[i] - self.lbs[i]) < self.gamma2)
+
     def compute_thresh(self):
         '''Computes bounds on threshold'''
         self.thresh_emp = max(self.emps) - self.epsilon
@@ -56,8 +62,8 @@ class st2(all_eps_bandit):
 
     def compute_sets(self):
         '''Compute sets of empirically good and bad arms.'''
-        self.unknown_arms = [i for i in range(self.narms)
-                                if not self.is_known(i)]
+        # self.unknown_arms = [i for i in range(self.narms)
+        #                         if not self.is_known(i)]
         # # unknown empirically good arms with width > gamma
         # self.emp_good = [i for i in self.unknown_arms
         #                         if self.emps[i] >= self.thresh_emp]
@@ -65,7 +71,12 @@ class st2(all_eps_bandit):
         # self.emp_bad = [i for i in self.unknown_arms
         #                         if self.emps[i] < self.thresh_emp]
 
+        # vectorized code
+        # self.unknown_arms = list(filter(lambda x: not self.is_known(x), np.arange(self.narms)))
+        # self.semi_known_arms = list(filter(lambda x: self.is_semi_known(x), np.arange(self.narms)))
 
+        self.unknown_arms = [i for i in range(self.narms) if not self.is_known(i)]
+        self.semi_known_arms = [i for i in range(self.narms) if self.is_semi_known(i)]
         self.emp_good = np.flatnonzero(self.emps >= self.thresh_emp)
         self.emp_bad = np.flatnonzero(self.emps < self.thresh_emp)
 
@@ -105,7 +116,19 @@ class st2(all_eps_bandit):
         # copies = self.pulls_per_round() # num of copies based on prev
         self.compute_thresh()                # compute current threshold 
         self.compute_sets()                  # compute good and bad sets
-        self.arms_to_pull()                  # find put which arm to pull
+        self.arms_to_pull()
+
+        # update epsilon
+        if len(self.semi_known_arms) == self.narms and not self.did_update_thresh and (self.ubs[self.argmax_ucb] - self.emps[self.argmax_ucb] < self.gamma2):
+            display_bounds(self, "st2_fuzzy_prev_pre")
+            old_eps = self.epsilon
+            # self.epsilon = max(self.epsilon - self.gamma2, self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]]))
+            self.epsilon = self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]])
+            print(f"updating epsilon from {old_eps} to {self.epsilon}")
+            self.did_update_thresh = True
+            display_bounds(self, "st2_fuzzy_prev_post")
+            self.arms_to_pull()
+            # find put which arm to pull
         # self.compute_err(copies=copies)      # compute current error
 
     def pull_round(self):
@@ -129,29 +152,33 @@ class st2(all_eps_bandit):
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt 
-    # means = 0.1*np.arange(25)[::-1]
-    # epsilon = 0.75
-    # noise_var = 1
-    # delta = 0.1
-    # maxpulls = 1000000
-    # gamma = 0.2
-
+    import matplotlib.pyplot as plt
 
     means = np.ones(100)
     # means[1:-1] = 0.965
     means[-1:] = 0
     means[-1:] = 0.18
+    # means[-1:] = 0.1
     means[-2] = 0.4
     epsilon = 0.8
     delta = 0.01
     noise_var = 1
     maxpulls = 1e9
-    gamma=0
 
 
+    # means = 0.1*np.arange(25)[::-1]
+    # epsilon = 0.75
+    # noise_var = 1
+    # delta = 0.1
+    # maxpulls = 1000000
+    gamma = 0
+    # gamma2 = 0.1
+
+    # maxpulls = 50000
     instance = st2(epsilon, means, noise_var, delta, gamma=gamma,
-                                                            maxpulls=maxpulls)
+                                                         maxpulls=maxpulls)
+
+    print(instance.epsilon)
     instance.run()
 
 
@@ -163,5 +190,5 @@ if __name__ == '__main__':
     plt.title('F1 scores of returned set')
     plt.show()
 
-    display_bounds(instance, "st2_gamma")
-
+    display_bounds(instance, "st2_fuzzy_prev")
+    print(instance.epsilon)

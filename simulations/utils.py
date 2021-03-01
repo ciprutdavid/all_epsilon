@@ -109,7 +109,7 @@ class all_eps_bandit:
         return 2*p*r / (p + r)
 
 
-def display_bounds(instance):
+def display_bounds(instance, extra_text):
     import matplotlib.pyplot as plt 
     thresh = max(instance.means) - instance.epsilon
     if hasattr(instance, 'multiplicative') and instance.multiplicative:
@@ -126,8 +126,6 @@ def display_bounds(instance):
     plt.legend(loc='best')
     plt.xlabel('Arm')
     plt.ylabel('Mean')
-    plt.title('Final upper and lower bounds')
-    # plt.savefig('too_early.pdf')
-    plt.savefig("images\\" + datetime.now().strftime("%Y%m%d-%H%M%S") + '_ubs_lbs_' + str(instance.total_pulls) + '.png')
-    plt.savefig("images\\" + datetime.now().strftime("%Y%m%d-%H%M%S") + '_ubs_lbs_' + str(instance.total_pulls) + '.svg')
+    plt.title(f'Upper and lower bounds')
+    plt.savefig("images\\" + datetime.now().strftime("%Y%m%d-%H%M%S") + '_ubs_lbs_' + str(instance.total_pulls) + '_' + extra_text + '.svg')
     plt.show()

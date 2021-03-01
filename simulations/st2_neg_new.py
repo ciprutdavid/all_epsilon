@@ -16,7 +16,7 @@ class st2(all_eps_bandit):
         self.emp_bad = []
         self.return_set = []
         self.unknown_arms = list(range(self.narms))
-        self.semi_known_arms = []
+        # self.semi_known_arms = []
         self.f_scores, self.emp_correct = [], []
         self.precision_vals, self.recall_vals = [], []
         # divide by two so gamma = bound width not half width
@@ -29,6 +29,8 @@ class st2(all_eps_bandit):
         self.verbose = verbose
         self.gamma2 = gamma2
         self.did_update_thresh = False
+        self.d = 0
+        self.ratio = 0
 
     def arms_to_pull(self):
         ''' Computes shich are the three arms to pull per round.
@@ -52,7 +54,12 @@ class st2(all_eps_bandit):
         return self.lbs[i] > self.thresh_ub or self.ubs[i] < self.thresh_lb
 
     def is_semi_known(self, i):
-        return self.lbs[i] > self.thresh_ub or self.ubs[i] < self.thresh_lb or ((self.ubs[i] - self.lbs[i]) < self.gamma2)
+        return (self.ubs[i] - self.lbs[i]) < min(self.gamma2, self.d/10)
+
+    def all_semi_known(self, li):
+        bounds = [self.ubs[i] - self.lbs[i] for i in li]
+        return np.average(bounds) < min(self.gamma2, self.d/4)
+        # return all([self.is_semi_known(i) for i in li])
 
     def compute_thresh(self):
         '''Computes bounds on threshold'''
@@ -76,7 +83,6 @@ class st2(all_eps_bandit):
         # self.semi_known_arms = list(filter(lambda x: self.is_semi_known(x), np.arange(self.narms)))
 
         self.unknown_arms = [i for i in range(self.narms) if not self.is_known(i)]
-        self.semi_known_arms = [i for i in range(self.narms) if self.is_semi_known(i)]
         self.emp_good = np.flatnonzero(self.emps >= self.thresh_emp)
         self.emp_bad = np.flatnonzero(self.emps < self.thresh_emp)
 
@@ -117,16 +123,18 @@ class st2(all_eps_bandit):
         self.compute_thresh()                # compute current threshold 
         self.compute_sets()                  # compute good and bad sets
         self.arms_to_pull()
+        self.d = self.emps[self.argmin_good] - self.emps[self.argmax_bad]
 
         # update epsilon
-        if len(self.semi_known_arms) == self.narms and not self.did_update_thresh and (self.ubs[self.argmax_ucb] - self.emps[self.argmax_ucb] < self.gamma2):
-            display_bounds(self)
+        if self.all_semi_known([self.argmax_ucb, self.argmin_good, self.argmax_bad]) and not self.did_update_thresh:
+        # if len(self.semi_known_arms) == self.narms and not self.did_update_thresh and (self.ubs[self.argmax_ucb] - self.emps[self.argmax_ucb] < self.gamma2):
+            display_bounds(self, "st2_fuzzy_pre")
             old_eps = self.epsilon
             # self.epsilon = max(self.epsilon - self.gamma2, self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]]))
             self.epsilon = self.emps[self.argmax_ucb] - np.average([self.emps[self.argmin_good],  self.emps[self.argmax_bad]])
             print(f"updating epsilon from {old_eps} to {self.epsilon}")
             self.did_update_thresh = True
-            display_bounds(self)
+            display_bounds(self, "st2_fuzzy_post")
             self.arms_to_pull()
             # find put which arm to pull
         # self.compute_err(copies=copies)      # compute current error
@@ -190,5 +198,5 @@ if __name__ == '__main__':
     plt.title('F1 scores of returned set')
     plt.show()
 
-    display_bounds(instance)
+    display_bounds(instance,"st2_fuzzy")
     print(instance.epsilon)

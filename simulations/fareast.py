@@ -132,6 +132,7 @@ if __name__ == '__main__':
     # means[1:-1] = 0.965
     means[-1:] = 0
     means[-1:] = 0.18
+    means[-2] = 0.4
     epsilon = 0.8
     # means = 0.1*np.arange(25)[::-1]
     # epsilon = 0.75

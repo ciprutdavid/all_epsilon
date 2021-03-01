@@ -121,13 +121,14 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt 
     means = np.ones(100)
     # means[1:-1] = 0.965
-    means[-1:] = 0
-    # means[-1:] = 0.18
+    # means[-1:] = 0
+    means[-1:] = 0.18
+    means[-2] = 0.4
     epsilon = 0.8
     delta = 0.01
     noise_var = 1
     maxpulls = 1e9
-    maxpulls = 50000
+    # maxpulls = 50000
     instance = st2(epsilon, means, noise_var, delta, maxpulls=maxpulls, 
                                                     multiplicative=False)
     instance.run()
