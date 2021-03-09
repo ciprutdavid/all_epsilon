@@ -125,24 +125,33 @@ class fareast(all_eps_bandit):
             self.printout(k)
             k += 1 # update counter
 
-        display_bounds(self, "fareast")
         self.printout(k)
 
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
+def small_alpha_example():
     means = np.ones(100)
-    # means[1:-1] = 0.965
-    means[-1:] = 0
     means[-1:] = 0.18
     means[-2] = 0.4
-    epsilon = 0.8
     epsilon = 0.65
-    # means = 0.1*np.arange(25)[::-1]
-    # epsilon = 0.75
     noise_var = 1
     delta = 0.01
     kappa = 0.5
-    # np.random.seed(42) 
-
     instance = fareast(epsilon, means, noise_var, delta, kappa, east=False)
     instance.run()
+    display_bounds(instance, "fareast")
+
+def small_beta_example():
+    means = np.ones(100)
+    means[-1:] = 0.18
+    means[-2] = 0.4
+    epsilon = 0.8
+    noise_var = 1
+    delta = 0.01
+    kappa = 0.5
+    instance = fareast(epsilon, means, noise_var, delta, kappa, east=False)
+    instance.run()
+    display_bounds(instance, "fareast")
+
+
+if __name__ == '__main__':
+    small_alpha_example()
+    small_beta_example()

@@ -159,47 +159,35 @@ class st2(all_eps_bandit):
         self.compute_return_set()
 
 
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-    # means = np.arange(0, 1, 0.1) + np.random.normal(scale=0.02, size=10)
-    # epsilon = 0.5
+def small_alpha_example():
     means = np.ones(100)
-    # # means[1:-1] = 0.965
-    # means[-1:] = 0
     means[-1:] = 0.18
-    # # means[-1:] = 0.1
+    means[-2] = 0.4
+    epsilon = 0.65
+    noise_var = 1
+    delta = 0.01
+    gamma=0
+    maxpulls=1e9
+    instance = st2(epsilon, means, noise_var, delta, gamma=gamma,
+                   maxpulls=maxpulls)
+    instance.run()
+    display_bounds(instance, "st2_gamma")
+
+def small_beta_example():
+    means = np.ones(100)
+    means[-1:] = 0.18
     means[-2] = 0.4
     epsilon = 0.8
-    # epsilon = 0.65
-    delta = 0.01
     noise_var = 1
-    maxpulls = 1e9
-
-
-    # means = 0.1*np.arange(25)[::-1]
-    # epsilon = 0.75
-    # noise_var = 1
-    # delta = 0.1
-    # maxpulls = 1000000
-    gamma = 0
-    gamma2 = 0.1
-
-    # maxpulls = 50000
+    delta = 0.01
+    gamma=0
+    maxpulls=1e9
     instance = st2(epsilon, means, noise_var, delta, gamma=gamma,
-                                                         maxpulls=maxpulls)
-
-    print(instance.epsilon)
+                   maxpulls=maxpulls)
     instance.run()
+    display_bounds(instance, "st2_gamma")
 
+if __name__ == '__main__':
+    small_alpha_example()
+    small_beta_example()
 
-    plt.figure(1)
-    plt.semilogx(instance.f_scores, 'b', label='ST2')
-    plt.legend(loc='best')
-    plt.xlabel('Number of samples')
-    plt.ylabel('F1 Score')
-    plt.title('F1 scores of returned set')
-    plt.show()
-
-    display_bounds(instance,"st2_fuzzy")
-    print(instance.epsilon)

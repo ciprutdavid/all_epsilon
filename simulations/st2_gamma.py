@@ -127,35 +127,35 @@ class st2(all_eps_bandit):
         self.printout()
         self.compute_return_set()
 
-
-if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-
+def small_alpha_example():
     means = np.ones(100)
-    means[-1:] = 0
+    means[-1:] = 0.18
+    means[-2] = 0.4
+    epsilon = 0.65
+    noise_var = 1
+    delta = 0.01
+    gamma=0
+    maxpulls=1e9
+    instance = st2(epsilon, means, noise_var, delta, gamma=gamma,
+                   maxpulls=maxpulls)
+    instance.run()
+    display_bounds(instance, "st2_gamma")
+
+def small_beta_example():
+    means = np.ones(100)
     means[-1:] = 0.18
     means[-2] = 0.4
     epsilon = 0.8
-    epsilon = 0.65
-    delta = 0.01
     noise_var = 1
-    maxpulls = 1e9
+    delta = 0.01
     gamma=0
-
-
+    maxpulls=1e9
     instance = st2(epsilon, means, noise_var, delta, gamma=gamma,
-                                                            maxpulls=maxpulls)
+                   maxpulls=maxpulls)
     instance.run()
-
-
-    plt.figure(1)
-    plt.semilogx(instance.f_scores, 'b', label='ST2')
-    plt.legend(loc='best')
-    plt.xlabel('Number of samples')
-    plt.ylabel('F1 Score')
-    plt.title('F1 scores of returned set')
-    plt.show()
-
     display_bounds(instance, "st2_gamma")
+
+if __name__ == '__main__':
+    small_alpha_example()
+    small_beta_example()
 
