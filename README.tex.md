@@ -1,10 +1,6 @@
-# Fuzzy \texttt{(ST)}^2 Algorithm
+# Fuzzy $\texttt{(ST)}^{2}$ Algorithm
 
-
-# all_epsilon
-An implementation of algorithms and baselines for "[Finding all epsilon good arms in stochastic bandits](https://arxiv.org/abs/2006.08850)" by Mason et al.
-
-The drug discovery folder contains data and code for methods used for the cancer experiment. The New Yorker folder contains the same for the New Yorker Dataset. Lastly, the simulations folder contains comparisons between the methods on simulated data. 
+In this project we have implemented a new algorithm for the all epsilon good arms problem in the stochastic MAB setting. The implementation is based on @blakemas's implementation of the Finding all epsilon good arms which can be found in https://github.com/blakemas/all_epsilon.
 
 ### Dependencies:
 Numpy, Pandas
