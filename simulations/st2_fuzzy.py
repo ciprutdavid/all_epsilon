@@ -16,7 +16,6 @@ class st2(all_eps_bandit):
         self.emp_bad = []
         self.return_set = []
         self.unknown_arms = list(range(self.narms))
-        # self.semi_known_arms = []
         self.f_scores, self.emp_correct = [], []
         self.precision_vals, self.recall_vals = [], []
         # divide by two so gamma = bound width not half width
@@ -53,12 +52,9 @@ class st2(all_eps_bandit):
         '''Is arm i certified good or bad wrt thresh_ub or thresh_lb'''
         return self.lbs[i] > self.thresh_ub or self.ubs[i] < self.thresh_lb
 
-    def is_semi_known(self, i):
-        return (self.ubs[i] - self.lbs[i]) < min(self.gamma2, self.d/10)
-
     def all_semi_known(self, li):
-        bounds = [self.ubs[i] - self.lbs[i] for i in li]
-        return np.average(bounds) < min(self.gamma2, self.d/4)
+        bounds = [self.ubs[i] - self.emps[i] for i in li]
+        return np.sum(bounds) < min(self.gamma2, self.d/4)
         # return all([self.is_semi_known(i) for i in li])
 
     def compute_thresh(self):
@@ -135,7 +131,11 @@ class st2(all_eps_bandit):
             print(f"updating epsilon from {old_eps} to {self.epsilon}")
             self.did_update_thresh = True
             display_bounds(self, "st2_fuzzy_post")
+
+            self.compute_sets()
+            self.compute_thresh()
             self.arms_to_pull()
+
             # find put which arm to pull
         # self.compute_err(copies=copies)      # compute current error
 
@@ -162,13 +162,16 @@ class st2(all_eps_bandit):
 if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
+    # means = np.arange(0, 1, 0.1) + np.random.normal(scale=0.02, size=10)
+    # epsilon = 0.5
     means = np.ones(100)
-    # means[1:-1] = 0.965
-    means[-1:] = 0
+    # # means[1:-1] = 0.965
+    # means[-1:] = 0
     means[-1:] = 0.18
-    # means[-1:] = 0.1
+    # # means[-1:] = 0.1
     means[-2] = 0.4
     epsilon = 0.8
+    # epsilon = 0.65
     delta = 0.01
     noise_var = 1
     maxpulls = 1e9
@@ -180,7 +183,7 @@ if __name__ == '__main__':
     # delta = 0.1
     # maxpulls = 1000000
     gamma = 0
-    # gamma2 = 0.1
+    gamma2 = 0.1
 
     # maxpulls = 50000
     instance = st2(epsilon, means, noise_var, delta, gamma=gamma,

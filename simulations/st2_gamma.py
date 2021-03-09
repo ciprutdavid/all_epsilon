@@ -144,6 +144,7 @@ if __name__ == '__main__':
     means[-1:] = 0.18
     means[-2] = 0.4
     epsilon = 0.8
+    epsilon = 0.65
     delta = 0.01
     noise_var = 1
     maxpulls = 1e9

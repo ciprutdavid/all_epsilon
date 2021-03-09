@@ -123,7 +123,9 @@ class fareast(all_eps_bandit):
             self.good_filter()
             if self.stopping_cond(): break
             self.printout(k)
-            k += 1                      # update counter
+            k += 1 # update counter
+
+        display_bounds(instance, "fareast")
         self.printout(k)
 
 if __name__ == '__main__':
@@ -134,6 +136,7 @@ if __name__ == '__main__':
     means[-1:] = 0.18
     means[-2] = 0.4
     epsilon = 0.8
+    epsilon = 0.65
     # means = 0.1*np.arange(25)[::-1]
     # epsilon = 0.75
     noise_var = 1
