@@ -1,4 +1,4 @@
-# Fuzzy $(ST)^2$ Algorithm
+# Fuzzy $\texttt{(ST)}^2$ Algorithm
 
 
 # all_epsilon
