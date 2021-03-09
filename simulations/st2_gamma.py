@@ -129,17 +129,10 @@ class st2(all_eps_bandit):
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt 
-    # means = 0.1*np.arange(25)[::-1]
-    # epsilon = 0.75
-    # noise_var = 1
-    # delta = 0.1
-    # maxpulls = 1000000
-    # gamma = 0.2
+    import matplotlib.pyplot as plt
 
 
     means = np.ones(100)
-    # means[1:-1] = 0.965
     means[-1:] = 0
     means[-1:] = 0.18
     means[-2] = 0.4

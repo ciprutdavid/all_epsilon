@@ -125,7 +125,7 @@ class fareast(all_eps_bandit):
             self.printout(k)
             k += 1 # update counter
 
-        display_bounds(instance, "fareast")
+        display_bounds(self, "fareast")
         self.printout(k)
 
 if __name__ == '__main__':
